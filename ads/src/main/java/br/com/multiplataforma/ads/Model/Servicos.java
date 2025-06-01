@@ -31,4 +31,5 @@ public class Servicos {
         this.login = login;
     }
 
+    public Servicos (){};
 }
