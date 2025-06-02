@@ -22,37 +22,39 @@ public class LoginService {
     private PasswordEncoder passwordEncoder;
 
     public ResponseEntity startSession(DadosCadastroLoginDTO dadosLogin) {
-        Optional<Login> loginOptional = loginRepository.findByLoginAndSenha(dadosLogin.login(), dadosLogin.senha());
+        Optional<Login> loginOptional = loginRepository.findByLogin(dadosLogin.login());
+
         if (loginOptional.isPresent()) {
             Login login = loginOptional.get();
-            if (passwordEncoder.matches(dadosLogin.senha(), login.getPassword())) {
+            if (passwordEncoder.matches(dadosLogin.senha(), login.getSenha())) {
                 return ResponseEntity.ok("Logado com sucesso!");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha incorreta.");
             }
-            return ResponseEntity.ok("Logado com sucesso!");
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login ou senha inválidos.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login não encontrado.");
         }
     }
+    public ResponseEntity updateLogin(DadosAtualizacaoLoginDTO dadosLogin) {
+        Optional<Login> loginOptional = loginRepository.findByLogin(dadosLogin.login());
 
-    public ResponseEntity updateLogin (String id, DadosAtualizacaoLoginDTO dadosLogin){
-        Optional<Login> loginOptional = loginRepository.findById(id);
-
-        if(loginOptional.isEmpty()){
+        if (loginOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
         Login login = loginOptional.get();
-        if(dadosLogin.senha().isEmpty()){
+
+        if (dadosLogin.senha() == null || dadosLogin.senha().isEmpty()) {
             return ResponseEntity.badRequest().body("A senha não pode ser nula!");
         }
-        if(passwordEncoder.matches(dadosLogin.senha(), login.getSenha())){
-            return ResponseEntity.badRequest().body("Não é permitido cadastrar uma senha igual a anterior!");
+        if (passwordEncoder.matches(dadosLogin.senha(), login.getSenha())) {
+            return ResponseEntity.badRequest().body("Não é permitido cadastrar uma senha igual à anterior!");
         }
-            login.setSenha(passwordEncoder.encode(dadosLogin.senha()));
 
+        login.setSenha(passwordEncoder.encode(dadosLogin.senha()));
         loginRepository.save(login);
-        return ResponseEntity.ok().body("Senha alterado com sucesso");
 
+        return ResponseEntity.ok("Senha alterada com sucesso");
     }
 
     public ResponseEntity deleteLogin (String id){

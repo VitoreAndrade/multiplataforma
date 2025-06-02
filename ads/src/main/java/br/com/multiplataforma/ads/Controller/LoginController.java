@@ -21,10 +21,10 @@ public class LoginController {
         return loginService.startSession(dadosLogin);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     @Transactional
-    public ResponseEntity updateLogin(@PathVariable String id, @RequestBody @Valid DadosAtualizacaoLoginDTO dadosLogin){
-        return loginService.updateLogin(id, dadosLogin);
+    public ResponseEntity updateLogin(@RequestBody @Valid DadosAtualizacaoLoginDTO dadosLogin) {
+        return loginService.updateLogin(dadosLogin);
     }
 
     @DeleteMapping("/{id}")
